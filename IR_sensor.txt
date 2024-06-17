@@ -1,0 +1,75 @@
+// #include <Arduino.h>
+// #include <Wire.h>
+ 
+//  #define S0_A 0
+//  #define S1_B 15
+//  #define IR_sense 34
+//  #define STRAT1 35
+
+// void setup() {
+//   Serial.begin(115200);
+//   pinMode(S0_A, OUTPUT);
+//   pinMode(S1_B, OUTPUT);
+//   pinMode(IR_sense, INPUT);
+//   pinMode(STRAT1, INPUT);
+// }
+ 
+// void loop() {
+//   digitalWrite(S0_A, LOW);
+//   digitalWrite(S1_B, LOW);
+//   Serial.print("Y0: ");
+//   Serial.print(analogRead(IR_sense));
+//   Serial.print("   ");
+
+
+//   digitalWrite(S0_A, HIGH);
+//   digitalWrite(S1_B, LOW);
+//   Serial.print("Y1: ");
+//   Serial.print(analogRead(IR_sense));
+//   Serial.print("   ");
+
+
+//   digitalWrite(S0_A, LOW);
+//   digitalWrite(S1_B, HIGH);
+//   Serial.print("Y2: ");
+//   Serial.print(analogRead(IR_sense));
+//   Serial.print("   ");
+
+
+//   digitalWrite(S0_A, HIGH);
+//   digitalWrite(S1_B, HIGH);
+//   Serial.print("Y3: ");
+//   Serial.print(analogRead(IR_sense));
+//   Serial.print(" ----- ");
+
+
+//   digitalWrite(S0_A, LOW);
+//   digitalWrite(S1_B, LOW);
+//   Serial.print("X0: ");
+//   Serial.print(digitalRead(STRAT1));
+//   Serial.print("   ");
+
+
+//   digitalWrite(S0_A, HIGH);
+//   digitalWrite(S1_B, LOW);
+//   Serial.print("X1: ");
+//   Serial.print(digitalRead(STRAT1));
+//   Serial.print("   ");
+
+
+//   digitalWrite(S0_A, LOW);
+//   digitalWrite(S1_B, HIGH);
+//   Serial.print("X2: ");
+//   Serial.print(digitalRead(STRAT1));
+//   Serial.print("   ");
+
+  
+//   digitalWrite(S0_A, HIGH);
+//   digitalWrite(S1_B, HIGH);
+//   Serial.print("X3: ");
+//   Serial.print(digitalRead(STRAT1));
+//   Serial.print("   ");
+//   Serial.println("");
+
+//   delay(10);
+// }

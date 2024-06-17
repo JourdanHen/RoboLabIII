@@ -1,0 +1,119 @@
+#include <Arduino.h>
+#include <BluetoothSerial.h>
+
+BluetoothSerial SerialBT; // Objeto para a comunicação Bluetooth
+
+#define FRENTE_D 14
+#define TRAS_D 12
+#define PWMD 13
+
+#define FRENTE_B 25
+#define TRAS_B 26
+#define PWMB 27
+
+const int VELOCIDADE_MIN = 20; // Velocidade mínima do motor
+const int VELOCIDADE_MAX = 120; // Velocidade máxima do motor
+const int NEUTRO = 127; // Valor neutro para velocidade
+
+unsigned long previousMillis = 0; // Variável para armazenar o último tempo de envio
+const long interval = 10; // Intervalo desejado em milissegundos (50 milissegundos)
+int contador = 0; // Contador de mensagens enviadas
+
+void setup() {
+  Serial.begin(115200);          // Inicializa a comunicação serial com o monitor serial
+  SerialBT.begin("TIGAO_O_RUIMTeste");    // Inicializa o Bluetooth com o nome "TIGAO_O_RUIMTeste"
+  pinMode(FRENTE_D, OUTPUT);
+  pinMode(TRAS_D, OUTPUT);
+  pinMode(PWMD, OUTPUT);
+  pinMode(FRENTE_B, OUTPUT);
+  pinMode(TRAS_B, OUTPUT);
+  pinMode(PWMB, OUTPUT);
+}
+
+void enviarMensagemBluetooth(const String &mensagem) {
+  SerialBT.println(mensagem); // Envie a mensagem via Bluetooth
+  contador++;                 // Incrementa o contador
+}
+
+void controleMotores(int VD, int VE) {
+  // Controle das rodas direita
+  if (VD > 0) {
+    digitalWrite(FRENTE_D, HIGH);
+    digitalWrite(TRAS_D, LOW);
+    analogWrite(PWMD, VD);
+  } else if (VD < 0) {
+    digitalWrite(FRENTE_D, LOW);
+    digitalWrite(TRAS_D, HIGH);
+    analogWrite(PWMD, -VD);
+  } else {
+    digitalWrite(FRENTE_D, LOW);
+    digitalWrite(TRAS_D, LOW);
+    analogWrite(PWMD, 0);
+  }
+
+  // Controle das rodas esquerda
+  if (VE > 0) {
+    digitalWrite(FRENTE_B, HIGH);
+    digitalWrite(TRAS_B, LOW);
+    analogWrite(PWMB, VE);
+  } else if (VE < 0) {
+    digitalWrite(FRENTE_B, LOW);
+    digitalWrite(TRAS_B, HIGH);
+    analogWrite(PWMB, -VE);
+  } else {
+    digitalWrite(FRENTE_B, LOW);
+    digitalWrite(TRAS_B, LOW);
+    analogWrite(PWMB, 0);
+  }
+}
+
+void processarEntrada(String entrada, int &VD, int &VE) {
+  int espacoIndex = entrada.indexOf(' ');
+  int V = entrada.substring(0, espacoIndex).toInt();
+  int W = entrada.substring(espacoIndex + 1).toInt();
+
+  // Cálculo da velocidade linear
+  if (V > NEUTRO) {
+    VD = map(V, NEUTRO + 1, 254, VELOCIDADE_MIN, VELOCIDADE_MAX);
+    VE = VD;
+  } else if (V < NEUTRO) {
+    VD = -map(V, 0, NEUTRO - 1, VELOCIDADE_MAX, VELOCIDADE_MIN);
+    VE = VD;
+  } else {
+    VD = 0;
+    VE = 0;
+  }
+
+  // Cálculo da velocidade angular (reduzida para 1/4)
+  if (W > NEUTRO) {
+    VD = VD - map(W, NEUTRO + 1, 254, VELOCIDADE_MIN / 4, VELOCIDADE_MAX / 4);
+    VE = VE + map(W, NEUTRO + 1, 254, VELOCIDADE_MIN / 4, VELOCIDADE_MAX / 4);
+  } else if (W < NEUTRO) {
+    VD = VD + map(W, 0, NEUTRO - 1, VELOCIDADE_MAX / 4, VELOCIDADE_MIN / 4);
+    VE = VE - map(W, 0, NEUTRO - 1, VELOCIDADE_MAX / 4, VELOCIDADE_MIN / 4);
+  }
+
+  controleMotores(VD, VE);
+}
+
+void loop() {
+  unsigned long currentMillis = millis(); // Obtém o tempo atual
+
+  // Verifica se passou o intervalo de tempo desejado desde a última transmissão
+  if (currentMillis - previousMillis >= interval) {
+    // Salva o último tempo de envio como o tempo atual
+    previousMillis = currentMillis;
+
+    // Envie uma mensagem via Bluetooth
+    enviarMensagemBluetooth("4095 2025 3005 3200 700 6 7 8 " + String(contador));
+  }
+
+  // Verifique se há mensagens recebidas via Bluetooth
+  while (SerialBT.available()) {
+    String mensagemRecebida = SerialBT.readStringUntil('\n'); // Leia até o final da linha
+    Serial.println("Mensagem recebida via Bluetooth: " + mensagemRecebida);
+    int VD, VE;
+    processarEntrada(mensagemRecebida, VD, VE); // Processa a mensagem recebida para controle do robô
+    Serial.println("VD: " + String(VD) + ", VE: " + String(VE)); // Imprime os valores de VD e VE
+  }
+}

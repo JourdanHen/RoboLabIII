@@ -1,0 +1,43 @@
+#include <Arduino.h>
+#include <ESP32Servo.h>
+#include <Wire.h>
+ 
+Servo servo_dir;  // create servo object to control a servo
+Servo servo_esq;  // create servo object to control a servo
+// 16 servo objects can be created on the ESP32
+ 
+int pos = 90;    // variable to store the servo position
+int pin_dir = 4;
+int pin_esq = 2;
+ 
+void setup() {
+	// Allow allocation of all timers
+ 	ESP32PWM::allocateTimer(0);
+ 	ESP32PWM::allocateTimer(1);
+ 	ESP32PWM::allocateTimer(2);
+ 	ESP32PWM::allocateTimer(3);
+
+ 	servo_dir.setPeriodHertz(50);    // standard 50 hz servo
+ 	servo_dir.attach(pin_dir, 500, 2400); // attaches the servo on pin 18 to the servo object
+  
+ 	servo_esq.setPeriodHertz(50);    // standard 50 hz servo
+ 	servo_esq.attach(pin_esq, 500, 2400); // attaches the servo on pin 18 to the servo object
+  
+}
+ 
+ void loop() {
+ 
+	for (pos = 0; pos <= 180; pos += 1) {
+		servo_dir.write(pos);
+		servo_esq.write(pos);
+    delay(2);
+	}
+  delay(15);
+
+	for (pos = 180; pos >= 0; pos -= 1) {
+		servo_dir.write(pos);
+		servo_esq.write(pos);
+    delay(2);
+	}
+  delay(15);
+}

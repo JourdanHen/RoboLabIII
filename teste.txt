@@ -206,6 +206,44 @@ void controleMotores(int VD, int VE) {
   }
 }
 
+/*
+//Testar, nesse código a entrada é processada não de forma linear, e sim como X^2 no dominio de 0 a 1
+void processarEntrada(String entrada) {
+  int espacoIndex = entrada.indexOf(' ');
+  int V = entrada.substring(0, espacoIndex).toInt();
+  int W = entrada.substring(espacoIndex + 1).toInt();
+
+  float V_norm, W_norm;
+  int VD, VE;
+
+  // Processamento da velocidade linear V
+  if (V > 127) {
+    V_norm = (V - 127) / 127.0;
+    VD = VELOCIDADE_MIN + pow(V_norm, 2) * (VELOCIDADE_MAX - VELOCIDADE_MIN);
+  } else if (V < 127) {
+    V_norm = (127 - V) / 127.0;
+    VD = -(VELOCIDADE_MIN + pow(V_norm, 2) * (VELOCIDADE_MAX - VELOCIDADE_MIN));
+  } else {
+    VD = 0;
+  }
+
+  VE = VD;
+
+  // Processamento da velocidade angular W
+  if (W > 127) {
+    W_norm = (W - 127) / 127.0;
+    VD -= VELOCIDADE_MIN + pow(W_norm, 2) * (VELOCIDADE_MAX);
+    VE += VELOCIDADE_MIN + pow(W_norm, 2) * (VELOCIDADE_MAX);
+  } else if (W < 127) {
+    W_norm = (127 - W) / 127.0;
+    VD += VELOCIDADE_MIN + pow(W_norm, 2) * (VELOCIDADE_MAX);
+    VE -= VELOCIDADE_MIN + pow(W_norm, 2) * (VELOCIDADE_MAX);
+  }
+
+  controleMotores(VD, VE);
+}
+
+*/
 
 void processarEntrada(String entrada) {
   int espacoIndex = entrada.indexOf(' ');
@@ -214,25 +252,23 @@ void processarEntrada(String entrada) {
 
   int VD, VE;
 
-  // Cálculo da velocidade linear
-  if (V > NEUTRO) {
-    VD = map(V, NEUTRO + 1, 254, VELOCIDADE_MIN, VELOCIDADE_MAX);
+  if (V > 127) {
+    VD = map(V, 128, 254, VELOCIDADE_MIN, VELOCIDADE_MAX);
     VE = VD;
-  } else if (V < NEUTRO) {
-    VD = -map(V, 0, NEUTRO - 1, VELOCIDADE_MAX, VELOCIDADE_MIN);
+  } else if (V < 127) {
+    VD = -map(V, 0, 126, VELOCIDADE_MAX, VELOCIDADE_MIN);
     VE = VD;
   } else {
     VD = 0;
     VE = 0;
   }
 
-  // Cálculo da velocidade angular
-  if (W > NEUTRO) {
-    VD = VD - map(W, NEUTRO + 1, 254, VELOCIDADE_MIN/2, VELOCIDADE_MAX/2);
-    VE = VE + map(W, NEUTRO + 1, 254, VELOCIDADE_MIN/2, VELOCIDADE_MAX/2);
-  } else if (W < NEUTRO) {
-    VD = VD + map(W, 0, NEUTRO - 1, VELOCIDADE_MAX/2, VELOCIDADE_MIN/2);
-    VE = VE - map(W, 0, NEUTRO - 1, VELOCIDADE_MAX/2, VELOCIDADE_MIN/2);
+  if (W > 127) {
+    VD = VD - map(W, 128, 254, VELOCIDADE_MIN , VELOCIDADE_MAX/3 );
+    VE = VE + map(W, 128, 254, VELOCIDADE_MIN , VELOCIDADE_MAX/3 );
+  } else if (W < 127) {
+    VD = VD + map(W, 0, 126, VELOCIDADE_MAX , VELOCIDADE_MIN/3 );
+    VE = VE - map(W, 0, 126, VELOCIDADE_MAX , VELOCIDADE_MIN/3 );
   }
 
   controleMotores(VD, VE);
@@ -309,8 +345,8 @@ void loop() {
 
     bool ignoreBluetooth = false;
     int V = 127, W = 127;
-    
-    if (irValues[0] < BRANCO) { // Esquerda frente
+    /*
+    if (irValues[0] < 300) { // Esquerda frente
       ignoreBluetooth = true;
       V = 0;
       W = 254;
@@ -320,18 +356,20 @@ void loop() {
       V = 254;
       W = 254;
     }
-    if (irValues[3] < BRANCO) { // Esquerda trás
+    if (irValues[3] < 300) { // 
       ignoreBluetooth = true;
       V = 0;
       W = 0;
     }
-    if (irValues[2] < BRANCO) { // Direita trás
+    if (irValues[2] < 300) { // Direita trás
       ignoreBluetooth = true;
       V = 254;
       W = 0;
     }
+    Verificar a ordem dos sensores novamente
+    */
 
-    if (irValues[0] < BRANCO || irValues[1] < BRANCO) { // Esquerda frente e Direita frente
+    if (irValues[0] < BRANCO || irValues[1] < BRANCO) { // Direita frente e Esquerda frente
       ignoreBluetooth = true;
       V = 0;
       W = 127;
