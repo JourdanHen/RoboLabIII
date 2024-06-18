@@ -40,6 +40,7 @@ const int BRANCO = -1000;
 const int VELOCIDADE_MIN = 60;
 const int VELOCIDADE_MAX = 254;
 const int NEUTRO = 127;
+const float angular = 2.5;
 
 unsigned long previousMillis = 0;
 const long interval = 10;
@@ -228,11 +229,11 @@ void processarEntrada(String entrada) {
 
   // Cálculo da velocidade angular
   if (W > NEUTRO) {
-    VD = VD - map(W, NEUTRO + 1, 254, VELOCIDADE_MIN/2, VELOCIDADE_MAX/2);
-    VE = VE + map(W, NEUTRO + 1, 254, VELOCIDADE_MIN/2, VELOCIDADE_MAX/2);
+    VD = VD - map(W, NEUTRO + 1, 254, VELOCIDADE_MIN/angular, VELOCIDADE_MAX/angular);
+    VE = VE + map(W, NEUTRO + 1, 254, VELOCIDADE_MIN/angular, VELOCIDADE_MAX/angular);
   } else if (W < NEUTRO) {
-    VD = VD + map(W, 0, NEUTRO - 1, VELOCIDADE_MAX/2, VELOCIDADE_MIN/2);
-    VE = VE - map(W, 0, NEUTRO - 1, VELOCIDADE_MAX/2, VELOCIDADE_MIN/2);
+    VD = VD + map(W, 0, NEUTRO - 1, VELOCIDADE_MAX/angular, VELOCIDADE_MIN/angular);
+    VE = VE - map(W, 0, NEUTRO - 1, VELOCIDADE_MAX/angular, VELOCIDADE_MIN/angular);
   }
 
   controleMotores(VD, VE);
